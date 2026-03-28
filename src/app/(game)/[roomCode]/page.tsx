@@ -329,7 +329,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
               
               <div className="flex flex-wrap gap-2 justify-center mt-4 w-full">
                 {players.map(p => (
-                  <div key={p.id} className="bg-zinc-800 px-4 py-2 rounded-lg flex items-center gap-2 font-medium">
+                  <div key={p.id} className="bg-zinc-800 px-4 py-2 rounded-lg flex items-center gap-2 font-medium" style={{ color: p.color || 'white' }}>
                     {p.name} {p.is_host && '👑'}
                   </div>
                 ))}
@@ -439,7 +439,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
             <div className="flex items-center justify-between text-zinc-400 text-sm">
                 <span>Tour {room.round_number} sur {room.max_rounds}</span>
                 {currentTurnPlayer && (
-                   <span className="text-primary animate-pulse">C'est le tour de {currentTurnPlayer.name} !</span>
+                   <span className="animate-pulse font-bold" style={{ color: currentTurnPlayer.color || 'white' }}>C'est le tour de {currentTurnPlayer.name} !</span>
                 )}
             </div>
 
@@ -451,9 +451,12 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                 return (
                   <Card key={p.id} className={`bg-zinc-900/50 transition-all ${isCurrentTurn ? 'border-primary ring-1 ring-primary shadow-lg scale-105' : 'border-zinc-800'}`}>
                     <CardContent className="p-4 flex flex-col gap-3">
-                       <span className={`font-bold flex items-center gap-2 ${isCurrentTurn ? 'text-primary' : 'text-zinc-300'}`}>
+                       <span 
+                         className={`font-bold flex items-center gap-2 ${isCurrentTurn ? '' : 'opacity-80'}`}
+                         style={{ color: p.color || (isCurrentTurn ? '#fff' : '#d4d4d8') }}
+                       >
                          {p.name}
-                         {isCurrentTurn && <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
+                         {isCurrentTurn && <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: p.color || '#fff' }} />}
                        </span>
                        <div className="flex flex-col gap-1 min-h-[40px]">
                          {pWords.length === 0 ? (
@@ -483,7 +486,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                      </div>
                      <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
                        <div 
-                         className={`h-full transition-all duration-1000 ease-linear ${timeLeft <= 5 ? 'bg-red-500' : 'bg-primary'}`} 
+                         className={`h-full transition-all duration-1000 ease-linear ${timeLeft <= 5 ? 'bg-red-500' : 'bg-zinc-200'}`} 
                          style={{ width: `${(timeLeft / room.turn_duration) * 100}%` }}
                        />
                      </div>
@@ -505,7 +508,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                </div>
             ) : (
                <div className="p-3 border border-zinc-800 bg-zinc-900 rounded-md text-center text-zinc-400 text-sm">
-                 Patientez pendant que {currentTurnPlayer?.name} écrit son mot...
+                 Patientez pendant que <span className="font-bold" style={{ color: currentTurnPlayer?.color || 'white' }}>{currentTurnPlayer?.name}</span> écrit son mot...
                </div>
             )}
           </div>

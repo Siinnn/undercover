@@ -27,7 +27,7 @@ export function Leaderboard({ players }: { players: PlayerState[] }) {
                 {index + 1}
               </span>
               <div className="flex flex-col text-left">
-                <span className="font-semibold text-lg">{player.name}</span>
+                <span className="font-semibold text-lg" style={{ color: player.color || 'inherit' }}>{player.name}</span>
                 <span className="text-xs opacity-70">
                   {player.role === 'IMPOSTER' ? 'Imposteur' : 'Civil'}
                 </span>

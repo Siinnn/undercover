@@ -8,10 +8,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Users, Gamepad2 } from 'lucide-react';
 
+const PRESET_COLORS = [
+  '#ef4444', // Red
+  '#f97316', // Orange
+  '#f59e0b', // Amber
+  '#22c55e', // Green
+  '#0ea5e9', // Sky
+  '#3b82f6', // Blue
+  '#8b5cf6', // Violet
+  '#ec4899', // Pink
+];
+
 export default function Home() {
   const router = useRouter();
   const [code, setCode] = useState('');
   const [playerName, setPlayerName] = useState('');
+  const [playerColor, setPlayerColor] = useState(PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)]);
   const [isLoading, setIsLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
 
@@ -55,6 +67,7 @@ export default function Home() {
     await supabase.from('players').insert({
       room_id: room.id,
       name: playerName,
+      color: playerColor,
       is_host: true
     });
 
@@ -86,6 +99,7 @@ export default function Home() {
     await supabase.from('players').insert({
       room_id: room.id,
       name: playerName,
+      color: playerColor,
       is_host: false
     });
 
@@ -115,7 +129,22 @@ export default function Home() {
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               className="bg-zinc-800 border-zinc-700 text-white"
+              style={{ color: playerColor }}
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-zinc-300">Couleur</label>
+            <div className="flex gap-2 justify-between">
+              {PRESET_COLORS.map(color => (
+                <button
+                  key={color}
+                  onClick={() => setPlayerColor(color)}
+                  className={`w-8 h-8 rounded-full transition-transform ${playerColor === color ? 'scale-125 ring-2 ring-white ring-offset-2 ring-offset-zinc-900' : 'hover:scale-110'}`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
           </div>
           
           <div className="space-y-4 pt-4 border-t border-zinc-800">

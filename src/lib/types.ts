@@ -43,6 +43,7 @@ export interface PlayerState {
   id: string;
   room_id: string;
   name: string;
+  color: string;
   is_host: boolean;
   role: Role;
   word: string | null;

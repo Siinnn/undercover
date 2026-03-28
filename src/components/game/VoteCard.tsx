@@ -26,12 +26,18 @@ export function VoteCard({ player, isSelectable, isSelected, onSelect, showRole 
       `}>
         <CardContent className="p-4 flex flex-col items-center gap-2">
           {/* Avatar simple textuel */}
-          <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-lg font-bold">
+          <div 
+            className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold border-2 bg-zinc-900/50"
+            style={{ borderColor: player.color || '#52525b', color: player.color || '#fff' }}
+          >
             {player.name.charAt(0).toUpperCase()}
           </div>
           
           <div className="text-center">
-            <h3 className={`font-medium ${isSelected ? 'text-primary-foreground' : 'text-zinc-100'}`}>
+            <h3 
+              className={`font-medium ${isSelected ? 'text-primary-foreground' : ''}`}
+              style={!isSelected && player.color ? { color: player.color } : undefined}
+            >
               {player.name}
             </h3>
             {showRole && (
