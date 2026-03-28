@@ -44,16 +44,13 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
 
   useEffect(() => {
     if (isHost && room?.status === 'LOBBY') {
-      supabase.auth.getSession().then(async ({ data: { session } }) => {
-        let query = supabase.from('themes').select('*');
-        if (session?.user?.id) {
-           query = query.or(`is_official.eq.true,user_id.eq.${session.user.id}`);
-        } else {
-           query = query.eq('is_official', true);
-        }
-        const { data } = await query;
+      const loadThemes = async () => {
+        // Optionnellement, on pourrait filtrer, mais pour l'instant on veut tous les thèmes, 
+        // y compris ceux insérés en SQL au tout début (qui n'ont pas de user_id).
+        const { data } = await supabase.from('themes').select('*').order('name');
         if (data) setThemes(data as Theme[]);
-      });
+      };
+      loadThemes();
     }
   }, [isHost, room?.status]);
 
@@ -370,8 +367,8 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
 
           {isHost && (
             <div className="pt-8 border-t border-zinc-800 text-center">
-              <Button onClick={forceVoting} variant="secondary" className="w-full text-zinc-300">
-                Lancer le Vote plus tôt
+              <Button onClick={forceVoting} variant="destructive" className="w-full font-bold">
+                Mettre fin au tour et lancer le Vote
               </Button>
             </div>
           )}
@@ -414,11 +411,12 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                <div className="mt-8 animate-in slide-in-from-bottom border-t border-zinc-800 pt-6">
                  <Button 
                    size="lg" 
-                   className="w-full font-bold max-w-xs mx-auto shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-shadow" 
+                   variant="destructive"
+                   className="w-full font-bold max-w-xs mx-auto shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-shadow" 
                    onClick={confirmVote}
                    disabled={isSubmitting}
                  >
-                   🚨 Valider mon choix
+                   🚨 Valider mon choix définitif
                  </Button>
                </div>
             )}
