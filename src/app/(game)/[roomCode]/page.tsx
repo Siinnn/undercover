@@ -40,7 +40,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [themes, setThemes] = useState<Theme[]>([]);
-  const [selectedThemeId, setSelectedThemeId] = useState<string>('random');
+  const [selectedThemeIds, setSelectedThemeIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (isHost && room?.status === 'LOBBY') {
@@ -112,8 +112,8 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
     try {
       // 1. Choix du mot via la base de données
       let wordsQuery = supabase.from('word_pairs').select('word_civil, word_imposter');
-      if (selectedThemeId !== 'random') {
-        wordsQuery = wordsQuery.eq('theme_id', selectedThemeId);
+      if (selectedThemeIds.length > 0) {
+        wordsQuery = wordsQuery.in('theme_id', selectedThemeIds);
       }
       
       const { data: wordsData, error: wordsError } = await wordsQuery;
@@ -304,17 +304,51 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                      className="w-24 text-center mx-auto text-white bg-zinc-800 border-zinc-700"
                    />
                    <div className="mt-4">
-                     <label className="text-sm text-zinc-400 mb-2 block">Thème de la partie :</label>
-                     <select 
-                       value={selectedThemeId} 
-                       onChange={(e) => setSelectedThemeId(e.target.value)}
-                       className="w-full text-white bg-zinc-800 border border-zinc-700 rounded-md p-2 text-sm focus:border-primary"
-                     >
-                       <option value="random">🎲 Aléatoire (Mix global)</option>
-                       {themes.map(t => (
-                          <option key={t.id} value={t.id}>{t.name} {t.is_official ? '⭐' : ''}</option>
-                       ))}
-                     </select>
+                     <label className="text-sm text-zinc-400 mb-2 block">Thèmes de la partie :</label>
+                     <div className="flex flex-wrap gap-3">
+                       <label 
+                         className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors border ${
+                           selectedThemeIds.length === 0 
+                             ? 'bg-primary/10 text-primary border-primary/50 shadow-[0_0_10px_rgba(var(--primary),0.1)]' 
+                             : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'
+                         }`}
+                       >
+                         <input 
+                           type="checkbox" 
+                           className="accent-primary w-4 h-4 cursor-pointer"
+                           checked={selectedThemeIds.length === 0}
+                           onChange={() => setSelectedThemeIds([])}
+                         />
+                         🎲 Tous (Mix global)
+                       </label>
+                       {themes.map(t => {
+                         const isSelected = selectedThemeIds.includes(t.id);
+                         return (
+                           <label 
+                             key={t.id}
+                             className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors border ${
+                               isSelected 
+                                 ? 'bg-primary/10 text-primary border-primary/50 shadow-[0_0_10px_rgba(var(--primary),0.1)]' 
+                                 : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'
+                             }`}
+                           >
+                             <input 
+                               type="checkbox" 
+                               className="accent-primary w-4 h-4 cursor-pointer"
+                               checked={isSelected}
+                               onChange={(e) => {
+                                 if (e.target.checked) {
+                                   setSelectedThemeIds(prev => [...prev, t.id]);
+                                 } else {
+                                   setSelectedThemeIds(prev => prev.filter(id => id !== t.id));
+                                 }
+                               }}
+                             />
+                             {t.name} {t.is_official && <span title="Thème Officiel">⭐</span>}
+                           </label>
+                         );
+                       })}
+                     </div>
                    </div>
                  </div>
               )}
