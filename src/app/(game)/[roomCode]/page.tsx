@@ -41,6 +41,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
   const [isFinishing, setIsFinishing] = useState(false);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [selectedThemeIds, setSelectedThemeIds] = useState<string[]>([]);
+  const [playedWordPairIds, setPlayedWordPairIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (isHost && room?.status === 'LOBBY') {
@@ -111,7 +112,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
 
     try {
       // 1. Choix du mot via la base de données
-      let wordsQuery = supabase.from('word_pairs').select('word_civil, word_imposter');
+      let wordsQuery = supabase.from('word_pairs').select('id, word_civil, word_imposter');
       if (selectedThemeIds.length > 0) {
         wordsQuery = wordsQuery.in('theme_id', selectedThemeIds);
       }
@@ -121,8 +122,17 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
       if (wordsError || !wordsData || wordsData.length === 0) {
         return toast("Erreur: Aucun mot trouvé dans la base de données.");
       }
+
+      let availableWords = wordsData.filter(row => !playedWordPairIds.includes(row.id));
       
-      const randomRow = wordsData[Math.floor(Math.random() * wordsData.length)];
+      if (availableWords.length === 0) {
+        toast("Déjà vu ! Tous les mots de cette sélection ont été joués. Réinitialisation de la liste.");
+        setPlayedWordPairIds([]);
+        availableWords = wordsData;
+      }
+      
+      const randomRow = availableWords[Math.floor(Math.random() * availableWords.length)];
+      setPlayedWordPairIds(prev => [...prev, randomRow.id]);
       
       // On tire à pile ou face quel mot sera celui des civils et celui de l'imposteur
       // pour éviter qu'un joueur ne devine son rôle s'il retombe sur la même paire.
