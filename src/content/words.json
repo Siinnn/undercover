@@ -1,0 +1,20 @@
+{
+  "Gaming": [
+    { "civilian": "Manette", "imposter": "Joystick" },
+    { "civilian": "Console", "imposter": "Ordinateur" },
+    { "civilian": "Boss", "imposter": "Ennemi" },
+    { "civilian": "Nintendo", "imposter": "PlayStation" }
+  ],
+  "Cinema": [
+    { "civilian": "Scénario", "imposter": "Script" },
+    { "civilian": "Réalisateur", "imposter": "Producteur" },
+    { "civilian": "Acteur", "imposter": "Comédien" },
+    { "civilian": "Caméra", "imposter": "Objectif" }
+  ],
+  "Monde": [
+    { "civilian": "Avion", "imposter": "Hélicoptère" },
+    { "civilian": "Plage", "imposter": "Piscine" },
+    { "civilian": "Ville", "imposter": "Village" },
+    { "civilian": "Océan", "imposter": "Mer" }
+  ]
+}
