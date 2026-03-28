@@ -94,10 +94,10 @@ export default function ThemeEditorPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  if (isLoading || !theme) return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">Chargement...</div>;
+  if (isLoading || !theme) return null;
 
   return (
-    <main className="min-h-screen bg-zinc-950 p-4 md:p-8">
+    <div className="w-full h-full p-4 md:p-8">
       <header className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 pb-4 border-b border-zinc-800">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard')} className="text-zinc-400 hover:text-white">
@@ -174,6 +174,6 @@ export default function ThemeEditorPage({ params }: { params: Promise<{ id: stri
           )}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

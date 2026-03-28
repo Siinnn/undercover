@@ -7,7 +7,7 @@ import { Theme } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Trash2, Home, LogOut } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function DashboardPage() {
@@ -79,30 +79,10 @@ export default function DashboardPage() {
     }
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-  };
-
-  if (isLoading) return <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">Chargement...</div>;
+  if (isLoading) return null;
 
   return (
-    <main className="min-h-screen bg-zinc-950 p-4 md:p-8">
-      <header className="max-w-4xl mx-auto flex items-center justify-between mb-8 pb-4 border-b border-zinc-800">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Mon Espace Créateur</h1>
-          <p className="text-zinc-400 text-sm">{session?.user?.email}</p>
-        </div>
-        <div className="flex gap-4">
-          <Button variant="outline" onClick={() => router.push('/')} className="bg-zinc-900 border-zinc-700 text-zinc-300">
-            <Home className="w-4 h-4 mr-2" /> Retour à l'accueil
-          </Button>
-          <Button variant="destructive" onClick={logout}>
-            <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-          </Button>
-        </div>
-      </header>
-
+    <div className="w-full h-full p-4 md:p-8">
       <section className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Création de Thème */}
@@ -157,6 +137,6 @@ export default function DashboardPage() {
         </div>
 
       </section>
-    </main>
+    </div>
   );
 }
