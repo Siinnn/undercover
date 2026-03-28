@@ -11,6 +11,7 @@ export interface RoomState {
   turn_order: string[]; // UUIDs des joueurs
   turn_index: number;
   max_rounds: number;
+  turn_duration: number;
   created_at: string;
 }
 

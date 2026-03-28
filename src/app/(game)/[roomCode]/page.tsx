@@ -42,6 +42,8 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
   const [themes, setThemes] = useState<Theme[]>([]);
   const [selectedThemeIds, setSelectedThemeIds] = useState<string[]>([]);
   const [playedWordPairIds, setPlayedWordPairIds] = useState<string[]>([]);
+  const [turnDurationInput, setTurnDurationInput] = useState<number>(0);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
     if (isHost && room?.status === 'LOBBY') {
@@ -99,6 +101,35 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
       }
     }
   }, [isMyTurn, room?.status]);
+
+  // Gestion du chronomètre lors du passage à un nouveau tour
+  useEffect(() => {
+    if (room?.status === 'PLAYING' && room?.turn_duration > 0) {
+      if (timeLeft === null || timeLeft === 0 || timeLeft > 0) {
+        setTimeLeft(room.turn_duration);
+      }
+    } else {
+      setTimeLeft(null);
+    }
+  }, [room?.status, room?.turn_index, room?.round_number, room?.turn_duration]);
+
+  // Le décompte du chronomètre
+  useEffect(() => {
+    if (timeLeft === null || timeLeft <= 0 || room?.status !== 'PLAYING') return;
+
+    const timerObj = setTimeout(() => {
+      setTimeLeft(prev => (prev !== null && prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearTimeout(timerObj);
+  }, [timeLeft, room?.status]);
+
+  // Action quand le chrono arrive à zéro
+  useEffect(() => {
+    if (timeLeft === 0 && isMyTurn && room?.status === 'PLAYING' && !isSubmitting) {
+      submitWord('⌛ Temps écoulé');
+    }
+  }, [timeLeft, isMyTurn, room?.status, isSubmitting]);
 
   if (!room || !currentPlayer) {
     return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">Connexion...</div>;
@@ -169,6 +200,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
         status: 'PLAYING', 
         round_number: 1,
         max_rounds: maxRounds,
+        turn_duration: turnDurationInput,
         turn_order: turnOrder,
         turn_index: 0
       }).eq('id', room.id);
@@ -206,8 +238,9 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
   };
 
   // == ACTIONS JOUEURS EN COURS DE PARTIE ==
-  const submitWord = async () => {
-    if (!typedWord.trim() || !isMyTurn) return;
+  const submitWord = async (forcedWord?: string) => {
+    const finalWord = forcedWord || typedWord.trim();
+    if (!finalWord || !isMyTurn) return;
     setIsSubmitting(true);
 
     try {
@@ -215,7 +248,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
       await supabase.from('played_words').insert({
         room_id: room.id,
         player_id: currentPlayer.id,
-        content: typedWord.trim()
+        content: finalWord
       });
 
       // 2. Calculer le prochain tour
@@ -303,17 +336,35 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
               </div>
 
               {isHost && (
-                 <div className="mt-8 pt-4 border-t border-zinc-800 w-full">
-                   <label className="text-sm text-zinc-400 mb-2 block">Nombre de mots par joueur :</label>
-                   <Input 
-                     type="number" 
-                     min={1} 
-                     max={10} 
-                     value={maxRounds} 
-                     onChange={(e) => setMaxRounds(parseInt(e.target.value) || 3)}
-                     className="w-24 text-center mx-auto text-white bg-zinc-800 border-zinc-700"
-                   />
-                   <div className="mt-4">
+                 <div className="mt-8 pt-4 border-t border-zinc-800 w-full flex flex-col gap-6">
+                   <div>
+                     <label className="text-sm text-zinc-400 mb-2 block">Nombre de mots par joueur :</label>
+                     <Input 
+                       type="number" 
+                       min={1} 
+                       max={10} 
+                       value={maxRounds} 
+                       onChange={(e) => setMaxRounds(parseInt(e.target.value) || 3)}
+                       className="w-24 text-center mx-auto text-white bg-zinc-800 border-zinc-700"
+                     />
+                   </div>
+                   <div>
+                     <label className="text-sm text-zinc-400 mb-2 block">Temps pour écrire son mot :</label>
+                     <select 
+                       value={turnDurationInput}
+                       onChange={(e) => setTurnDurationInput(Number(e.target.value))}
+                       className="w-full text-white bg-zinc-800 border border-zinc-700 rounded-md p-2 text-sm focus:border-primary text-center"
+                     >
+                       <option value={0}>∞ Sans limite</option>
+                       <option value={5}>⏱️ 5 secondes</option>
+                       <option value={10}>⏱️ 10 secondes</option>
+                       <option value={15}>⏱️ 15 secondes</option>
+                       <option value={30}>⏱️ 30 secondes</option>
+                       <option value={45}>⏱️ 45 secondes</option>
+                       <option value={60}>⏱️ 60 secondes</option>
+                     </select>
+                   </div>
+                   <div className="mt-2">
                      <label className="text-sm text-zinc-400 mb-2 block">Thèmes de la partie :</label>
                      <div className="flex flex-wrap gap-3">
                        <label 
@@ -423,18 +474,34 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
 
             {/* Input si c'est notre tour */}
             {isMyTurn ? (
-               <div className="flex gap-2">
-                 <Input 
-                   placeholder="Décrivez votre mot secrètement..." 
-                   className="flex-1 bg-zinc-800 border-zinc-700 focus:border-primary"
-                   value={typedWord}
-                   onChange={e => setTypedWord(e.target.value)}
-                   onKeyDown={e => e.key === 'Enter' && submitWord()}
-                   autoFocus
-                 />
-                 <Button onClick={submitWord} disabled={!typedWord.trim() || isSubmitting}>
-                   <Send className="w-4 h-4" />
-                 </Button>
+               <div className="flex flex-col gap-2">
+                 {room.turn_duration > 0 && timeLeft !== null && (
+                   <div className="mb-2">
+                     <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                       <span>Temps restant</span>
+                       <span className={timeLeft <= 5 ? "text-red-400 font-bold animate-pulse" : ""}>{timeLeft}s</span>
+                     </div>
+                     <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+                       <div 
+                         className={`h-full transition-all duration-1000 ease-linear ${timeLeft <= 5 ? 'bg-red-500' : 'bg-primary'}`} 
+                         style={{ width: `${(timeLeft / room.turn_duration) * 100}%` }}
+                       />
+                     </div>
+                   </div>
+                 )}
+                 <div className="flex gap-2">
+                   <Input 
+                     placeholder="Décrivez votre mot secrètement..." 
+                     className="flex-1 bg-zinc-800 border-zinc-700 focus:border-primary"
+                     value={typedWord}
+                     onChange={e => setTypedWord(e.target.value)}
+                     onKeyDown={e => e.key === 'Enter' && submitWord()}
+                     autoFocus
+                   />
+                   <Button onClick={() => submitWord()} disabled={!typedWord.trim() || isSubmitting}>
+                     <Send className="w-4 h-4" />
+                   </Button>
+                 </div>
                </div>
             ) : (
                <div className="p-3 border border-zinc-800 bg-zinc-900 rounded-md text-center text-zinc-500 text-sm">
@@ -519,19 +586,48 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
         <section className="w-full max-w-2xl animate-in fade-in">
           <Leaderboard players={players} />
           
-          <div className="mt-8">
-            <h3 className="text-xl font-bold mb-4 text-center">Les rôles de ce round :</h3>
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              {players.map(p => (
-                 <VoteCard 
-                  key={p.id} 
-                  player={p} 
-                  isSelectable={false}
-                  isSelected={false}
-                  onSelect={() => {}}
-                  showRole={true}
-                />
-              ))}
+          <div className="mt-10">
+            <h3 className="text-xl font-bold mb-6 text-center text-zinc-100">Résumé du Round : rôles et mots</h3>
+            <div className="flex flex-col gap-4 mb-10">
+              {players.map(p => {
+                 const pWords = playedWords.filter(pw => pw.player_id === p.id);
+                 return (
+                   <div key={p.id} className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6 bg-zinc-900/50 p-5 rounded-xl border border-zinc-800 shadow-lg">
+                       <div className="w-full sm:w-48 flex-shrink-0">
+                         <VoteCard 
+                           player={p} 
+                           isSelectable={false}
+                           isSelected={false}
+                           onSelect={() => {}}
+                           showRole={true}
+                         />
+                       </div>
+                       <div className="flex-1 flex flex-col justify-center text-center sm:text-left w-full border-t border-zinc-800 pt-4 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-6">
+                         <div className="mb-4">
+                           <span className="text-xs font-bold text-zinc-500 block mb-2 uppercase tracking-wider">Mot secret assigné</span>
+                           <span className={`text-lg font-bold px-4 py-1.5 rounded-md border shadow-sm ${p.role === 'IMPOSTER' ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-blue-500/10 text-blue-400 border-blue-500/30'}`}>
+                             {p.word || 'Aucun'}
+                           </span>
+                         </div>
+                         
+                         <div>
+                           <span className="text-xs font-bold text-zinc-500 block mb-2 uppercase tracking-wider">Mots écrits durant la partie</span>
+                           <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                              {pWords.length === 0 ? (
+                                <span className="text-sm text-zinc-600 italic px-3 py-1 bg-zinc-800/50 rounded-md">Aucun mot transcrit</span>
+                              ) : (
+                                pWords.map((pw, i) => (
+                                 <span key={i} className="bg-zinc-800 border border-zinc-700 px-3 py-1.5 rounded-md text-sm text-zinc-200 shadow-sm font-medium">
+                                    {pw.content}
+                                 </span>
+                                ))
+                              )}
+                           </div>
+                         </div>
+                       </div>
+                   </div>
+                 );
+              })}
             </div>
           </div>
 
