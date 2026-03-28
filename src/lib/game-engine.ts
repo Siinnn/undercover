@@ -80,6 +80,8 @@ export function calculateScores(players: PlayerDefinition[]): PlayerDefinition[]
     } else if (player.role === 'IMPOSTER') {
       if (noOneVotedImposter) {
         gainedPoints = 200;
+      } else if (votesAgainstImposter.length === 1) {
+        gainedPoints = 100;
       }
       // Sinon l'imposteur a été démasqué, il ne gagne rien (0)
     }

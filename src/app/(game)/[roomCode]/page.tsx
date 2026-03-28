@@ -64,20 +64,44 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
     }
   }, [players, room?.status, isHost, isFinishing]);
 
+  // Helper pour savoir qui doit jouer (déplacé ici pour être accessible dans useEffect)
+  const currentTurnPlayerId = room?.turn_order?.[room?.turn_index];
+  const isMyTurn = currentTurnPlayerId === currentPlayer?.id;
+  const currentTurnPlayer = players.find(p => p.id === currentTurnPlayerId);
+
   useEffect(() => {
     if (!playerName && room) {
       router.push('/');
     }
   }, [playerName, room, router]);
 
+  useEffect(() => {
+    if (isMyTurn && room?.status === 'PLAYING') {
+      toast.success("C'est à votre tour de jouer !", { duration: 4000 });
+      try {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContextClass) {
+          const ctx = new AudioContextClass();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, ctx.currentTime);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
+          osc.start(ctx.currentTime);
+          osc.stop(ctx.currentTime + 0.5);
+        }
+      } catch (e) {
+        // Ignorer les erreurs Web Audio API
+      }
+    }
+  }, [isMyTurn, room?.status]);
+
   if (!room || !currentPlayer) {
     return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">Connexion...</div>;
   }
-
-  // Helper pour savoir qui doit jouer
-  const currentTurnPlayerId = room.turn_order?.[room.turn_index];
-  const isMyTurn = currentTurnPlayerId === currentPlayer.id;
-  const currentTurnPlayer = players.find(p => p.id === currentTurnPlayerId);
 
   // == ACTIONS DU HOST ==
   const startGame = async () => {
@@ -324,24 +348,34 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                 )}
             </div>
 
-            {/* Historique des mots joués */}
-            <Card className="bg-zinc-900/50 border-zinc-800">
-              <CardContent className="p-4 flex flex-col gap-3 min-h-32 max-h-64 overflow-y-auto">
-                {playedWords.length === 0 ? (
-                   <p className="text-zinc-600 italic text-center text-sm my-auto">Aucun mot écrit pour le moment.</p>
-                ) : (
-                   playedWords.map((pw, i) => {
-                     const p = players.find(x => x.id === pw.player_id);
-                     return (
-                        <div key={i} className="flex gap-2 text-sm bg-zinc-800/50 p-2 rounded w-fit">
-                            <span className="font-bold text-zinc-300">{p?.name || 'Inconnu'} :</span>
-                            <span className="text-white">{pw.content}</span>
-                        </div>
-                     )
-                   })
-                )}
-              </CardContent>
-            </Card>
+            {/* Affichage des joueurs et de leurs mots joués */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {players.map(p => {
+                const pWords = playedWords.filter(pw => pw.player_id === p.id);
+                const isCurrentTurn = currentTurnPlayerId === p.id;
+                return (
+                  <Card key={p.id} className={`bg-zinc-900/50 transition-all ${isCurrentTurn ? 'border-primary ring-1 ring-primary shadow-lg scale-105' : 'border-zinc-800'}`}>
+                    <CardContent className="p-4 flex flex-col gap-3">
+                       <span className={`font-bold flex items-center gap-2 ${isCurrentTurn ? 'text-primary' : 'text-zinc-300'}`}>
+                         {p.name}
+                         {isCurrentTurn && <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />}
+                       </span>
+                       <div className="flex flex-col gap-1 min-h-[40px]">
+                         {pWords.length === 0 ? (
+                           <span className="italic text-zinc-600 text-sm">En attente...</span>
+                         ) : (
+                           pWords.map((pw, i) => (
+                             <div key={i} className="bg-zinc-800/80 px-2 py-1 rounded text-white text-sm break-words">
+                               {pw.content}
+                             </div>
+                           ))
+                         )}
+                       </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
 
             {/* Input si c'est notre tour */}
             {isMyTurn ? (
