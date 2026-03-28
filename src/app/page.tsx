@@ -132,7 +132,7 @@ export default function Home() {
                 <span className="w-full border-t border-zinc-800" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-zinc-900 px-2 text-zinc-500">Ou rejoindre</span>
+                <span className="bg-zinc-900 px-2 text-zinc-400">Ou rejoindre</span>
               </div>
             </div>
 
@@ -157,7 +157,7 @@ export default function Home() {
         </CardContent>
       </Card>
       
-      <p className="mt-8 text-sm text-zinc-600 flex items-center gap-2 mb-4">
+      <p className="mt-8 text-sm text-zinc-400 flex items-center gap-2 mb-4">
         <Users className="w-4 h-4" /> 3 à 8 Joueurs Recommandés
       </p>
 
@@ -166,7 +166,7 @@ export default function Home() {
           🔧 Gérer mes Thèmes personnalisés
         </Button>
       ) : (
-        <Button variant="link" onClick={() => router.push('/login?mode=signup')} className="text-zinc-500">
+        <Button variant="link" onClick={() => router.push('/login?mode=signup')} className="text-zinc-400">
           Créer un compte Créateur
         </Button>
       )}

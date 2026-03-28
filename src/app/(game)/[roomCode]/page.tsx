@@ -421,7 +421,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
               Démarrer la partie
             </Button>
           ) : (
-            <p className="text-center text-zinc-500 italic">En attente du lancement par l'hôte...</p>
+            <p className="text-center text-zinc-400 italic">En attente du lancement par l'hôte...</p>
           )}
         </section>
       )}
@@ -457,7 +457,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                        </span>
                        <div className="flex flex-col gap-1 min-h-[40px]">
                          {pWords.length === 0 ? (
-                           <span className="italic text-zinc-600 text-sm">En attente...</span>
+                           <span className="italic text-zinc-400 text-sm">En attente...</span>
                          ) : (
                            pWords.map((pw, i) => (
                              <div key={i} className="bg-zinc-800/80 px-2 py-1 rounded text-white text-sm break-words">
@@ -504,7 +504,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                  </div>
                </div>
             ) : (
-               <div className="p-3 border border-zinc-800 bg-zinc-900 rounded-md text-center text-zinc-500 text-sm">
+               <div className="p-3 border border-zinc-800 bg-zinc-900 rounded-md text-center text-zinc-400 text-sm">
                  Patientez pendant que {currentTurnPlayer?.name} écrit son mot...
                </div>
             )}
@@ -604,17 +604,17 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
                        </div>
                        <div className="flex-1 flex flex-col justify-center text-center sm:text-left w-full border-t border-zinc-800 pt-4 sm:border-t-0 sm:pt-0 sm:border-l sm:pl-6">
                          <div className="mb-4">
-                           <span className="text-xs font-bold text-zinc-500 block mb-2 uppercase tracking-wider">Mot secret assigné</span>
+                           <span className="text-xs font-bold text-zinc-400 block mb-2 uppercase tracking-wider">Mot secret assigné</span>
                            <span className={`text-lg font-bold px-4 py-1.5 rounded-md border shadow-sm ${p.role === 'IMPOSTER' ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-blue-500/10 text-blue-400 border-blue-500/30'}`}>
                              {p.word || 'Aucun'}
                            </span>
                          </div>
                          
                          <div>
-                           <span className="text-xs font-bold text-zinc-500 block mb-2 uppercase tracking-wider">Mots écrits durant la partie</span>
+                           <span className="text-xs font-bold text-zinc-400 block mb-2 uppercase tracking-wider">Mots écrits durant la partie</span>
                            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                               {pWords.length === 0 ? (
-                                <span className="text-sm text-zinc-600 italic px-3 py-1 bg-zinc-800/50 rounded-md">Aucun mot transcrit</span>
+                                <span className="text-sm text-zinc-400 italic px-3 py-1 bg-zinc-800/50 rounded-md">Aucun mot transcrit</span>
                               ) : (
                                 pWords.map((pw, i) => (
                                  <span key={i} className="bg-zinc-800 border border-zinc-700 px-3 py-1.5 rounded-md text-sm text-zinc-200 shadow-sm font-medium">
@@ -634,7 +634,7 @@ function GameRoomContent({ params }: { params: Promise<{ roomCode: string }> }) 
           {isHost ? (
             <Button className="w-full" size="lg" onClick={nextRound}>Nouveau Round</Button>
           ) : (
-             <p className="text-center text-zinc-500">L'hôte prépare le round suivant...</p>
+             <p className="text-center text-zinc-400">L'hôte prépare le round suivant...</p>
           )}
         </section>
       )}

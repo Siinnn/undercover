@@ -23,7 +23,7 @@ export function Leaderboard({ players }: { players: PlayerState[] }) {
             `}
           >
             <div className="flex items-center gap-4">
-              <span className={`text-xl font-bold w-6 ${index === 0 ? 'text-amber-500' : 'text-zinc-500'}`}>
+              <span className={`text-xl font-bold w-6 ${index === 0 ? 'text-amber-500' : 'text-zinc-400'}`}>
                 {index + 1}
               </span>
               <div className="flex flex-col text-left">
@@ -35,9 +35,9 @@ export function Leaderboard({ players }: { players: PlayerState[] }) {
             </div>
             <div className="text-right">
               <span className="font-bold text-xl">{player.score}</span>
-              <span className="text-zinc-500 text-sm ml-1">pts</span>
+              <span className="text-zinc-400 text-sm ml-1">pts</span>
               {player.last_score_gained !== undefined && (
-                <span className={`block text-xs font-bold ${player.last_score_gained > 0 ? 'text-green-500' : 'text-zinc-600'}`}>
+                <span className={`block text-xs font-bold ${player.last_score_gained > 0 ? 'text-green-500' : 'text-zinc-400'}`}>
                   +{player.last_score_gained}
                 </span>
               )}
@@ -46,7 +46,7 @@ export function Leaderboard({ players }: { players: PlayerState[] }) {
         ))}
       </div>
       
-      <div className="mt-8 text-center text-sm text-zinc-500 flex flex-col gap-1">
+      <div className="mt-8 text-center text-sm text-zinc-400 flex flex-col gap-1">
         <p>🎯 Civils (Trouvé en solo) : <strong className="text-zinc-300">+150pts</strong></p>
         <p>🤝 Civils (En groupe) : <strong className="text-zinc-300">+100pts</strong></p>
         <p>🥷 Imposteur (Caché) : <strong className="text-zinc-300">+200pts</strong></p>

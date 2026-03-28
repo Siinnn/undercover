@@ -45,7 +45,7 @@ export function WordDisplay({ word }: WordDisplayProps) {
         </motion.div>
       </div>
 
-      <p className="text-sm text-zinc-500 max-w-xs text-center">
+      <p className="text-sm text-zinc-400 max-w-xs text-center">
         Attention, assurez-vous que personne ne regarde votre écran.
       </p>
     </div>

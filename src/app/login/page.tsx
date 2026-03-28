@@ -51,9 +51,9 @@ function LoginContent() {
       <Card className="w-full max-w-sm bg-zinc-900 border-zinc-800">
         <CardHeader>
           <CardTitle className="text-white text-xl text-center flex items-center justify-center gap-2">
-            <span className={!isSignUp ? 'text-primary' : 'text-zinc-500'}>Connexion</span>
-            <span className="text-zinc-600">|</span>
-            <span className={isSignUp ? 'text-primary' : 'text-zinc-500'}>Inscription</span>
+            <span className={!isSignUp ? 'text-primary' : 'text-zinc-400'}>Connexion</span>
+            <span className="text-zinc-500">|</span>
+            <span className={isSignUp ? 'text-primary' : 'text-zinc-400'}>Inscription</span>
           </CardTitle>
           <CardDescription className="text-center">
             {isSignUp 

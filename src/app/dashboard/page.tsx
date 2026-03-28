@@ -132,7 +132,7 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold text-white mb-4">Mes Thèmes ({themes.length})</h2>
           
           {themes.length === 0 ? (
-             <div className="text-zinc-500 text-center py-12 bg-zinc-900/50 border border-zinc-800 border-dashed rounded-lg">
+             <div className="text-zinc-400 text-center py-12 bg-zinc-900/50 border border-zinc-800 border-dashed rounded-lg">
                Vous n'avez pas encore créé de thème.
              </div>
           ) : (
@@ -143,7 +143,7 @@ export default function DashboardPage() {
                        <CardTitle className="text-white text-lg line-clamp-1">{theme.name}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex justify-between items-end">
-                       <p className="text-xs text-zinc-500">
+                       <p className="text-xs text-zinc-400">
                          {new Date(theme.created_at).toLocaleDateString()}
                        </p>
                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-400/10" onClick={(e) => { e.stopPropagation(); deleteTheme(theme.id); }}>
